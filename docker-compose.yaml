@@ -1,0 +1,33 @@
+version: "2.1"
+
+services:
+      
+  jobmanager:
+    image: ecg/flink_1.4.0-prometheus-hadoop28-scala_2.11
+    container_name: jobmanager
+    ports:
+      - "6123"
+      - "8081:8081"
+      - "4005:4005"
+    command: jobmanager
+    privileged: true
+    volumes:
+      - "./flink/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml"
+      - "./heapdumps:/heapdumps"
+
+  taskmanager:
+    image: ecg/flink_1.4.0-prometheus-hadoop28-scala_2.11
+    container_name: taskmanager
+    ports:
+      - "6121"
+      - "6122"
+      - "5005:5005"
+    links:
+      - jobmanager:jobmanager
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    privileged: true
+    volumes:
+      - "./flink/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml"
+      - "./heapdumps:/heapdumps"
